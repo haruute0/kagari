@@ -1,13 +1,12 @@
-import pymysql
+import pymysql, os
 import datetime
-import os
 
 def init():
   return pymysql.connect(
-    host= os.environ('DATABASE_HOST'),
-    user=os.environ('DATABASE_USER'),
-    password=os.environ('DATABASE_PASSWORD'),
-    db=os.environ('DATABASE_NAME'),
+    host=DATABASE_HOST,
+    user=DATABASE_USER,
+    password=DATABASE_PASSWORD,
+    db=DATABASE_DB,
     cursorclass=pymysql.cursors.DictCursor)
 
 def insert(sql):
@@ -21,17 +20,16 @@ def insert(sql):
   except pymysql.Error as e:
     print(e)
     return False
-
+	
 def today_schedule(KELAS):
   try:
     connection = init()
     cursor = connection.cursor()
-    table = 'schedule_tf' + KELAS.lower()
-    weekday = datetime.datetime.today().weekday()
-    sql = """SELECT * from {}.{} WHERE week_day = {};""".format(db, table, weekday)
+    TABLE = 'schedule_tf' + KELAS.lower()
+    sql = """SELECT * from {}.{} WHERE week_day = {};""".format(DATABASE_DB, TABLE, WEEK_DAY)
     cursor.execute(sql)
     rows = cursor.fetchall()
     return rows
   except pymysql.Error as e:
-    print(e)
-    return None
+    rows = "Kelas {} tidak ada.\nInput kelas: A, B atau C.".format(KELAS.upper())
+    return rows
