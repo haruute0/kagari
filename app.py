@@ -27,10 +27,10 @@ import datetime
 app = Flask(__name__)
 
 # get variables from your environment variable
-channel_secret = LINE_CHANNEL_SECRET
-channel_access_token = LINE_CHANNEL_ACCESS_TOKEN
-allowed_groupid = ALLOWED_GROUPID
-admin_id = ADMIN_ID
+channel_secret = os.environ.get('LINE_CHANNEL_SECRET', None)
+channel_access_token = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN', None)
+allowed_groupid = os.environ.get('ALLOWED_GROUPID', None)
+admin_id = os.environ.get('ADMIN_ID', None)
 
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)

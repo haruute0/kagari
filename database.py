@@ -3,10 +3,10 @@ import datetime
 
 def init():
   return pymysql.connect(
-    host=DATABASE_HOST,
-    user=DATABASE_USER,
-    password=DATABASE_PASSWORD,
-    db=DATABASE_DB,
+    host=os.environ.get('DATABASE_HOST', None),
+    user=os.environ.get('DATABASE_USER', None),
+    password=os.environ.get('DATABASE_PASSWORD', None),
+    db=os.environ.get('DATABASE_DB', None),
     cursorclass=pymysql.cursors.DictCursor)
 
 def insert(sql):
@@ -26,7 +26,8 @@ def today_schedule(KELAS):
     connection = init()
     cursor = connection.cursor()
     TABLE = 'schedule_tf' + KELAS.lower()
-    sql = """SELECT * from {}.{} WHERE week_day = {};""".format(DATABASE_DB, TABLE, WEEK_DAY)
+    WEEK_DAY = datetime.datetime.today().weekday()
+    sql = """SELECT * from {}.{} WHERE week_day = {};""".format(os.environ.get('DATABASE_DB', None), TABLE, WEEK_DAY)
     cursor.execute(sql)
     rows = cursor.fetchall()
     return rows
