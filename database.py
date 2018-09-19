@@ -34,3 +34,18 @@ def today_schedule(KELAS):
   except pymysql.Error as e:
     rows = "Kelas {} tidak ada.\nInput kelas: A, B atau C.".format(KELAS.upper())
     return rows
+
+def tomorrow_schedule(KELAS):
+  try:
+    connection = init()
+    cursor = connection.cursor()
+    TABLE = 'schedule_tf' + KELAS.lower()
+    WEEK_DAY = datetime.datetime.today().weekday()
+    WEEK_DAY = WEEK_DAY + 1
+    sql = """SELECT * from {}.{} WHERE week_day = {};""".format(os.environ.get('DATABASE_DB', None), TABLE, WEEK_DAY)
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    return rows
+  except pymysql.Error as e:
+    rows = "Kelas {} tidak ada.\nInput kelas: A, B atau C.".format(KELAS.upper())
+    return rows

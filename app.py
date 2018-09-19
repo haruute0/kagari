@@ -84,12 +84,34 @@ def handle_text_message(event):
             else:
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text="Bot can't leave from 1:1 chat"))
-        if '/schedule' and '/s' in text:
+        if '/today' in text:
                 KELAS = text.split(' ')[1]
                 content = database.today_schedule(KELAS)
-                data = str(content)
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text=data))
+                line_bot_api.push_message(
+                    allowed_groupid, TextMessage(text="Teknik Informatika Kelas {}".format(KELAS.upper())))
+                for key in content:
+                    course_name = key['course_name']
+                    session = key['session']
+                    course_code = key['course_code']
+                    course_room = key['course_room']
+                    lecturer_name = key['lecturer_name']
+                    week_day = key['week_day']
+                    line_bot_api.push_message(
+                        allowed_groupid, TextMessage(text="SESI {}\n{} - {}\n{}\nROOM: {}".format(session, course_code, course_name, lecturer_name, course_room)))
+        if '/tomorrow' in text:
+                KELAS = text.split(' ')[1]
+                content = database.tomorrow_schedule(KELAS)
+                line_bot_api.push_message(
+                    allowed_groupid, TextMessage(text="Teknik Informatika Kelas {}".format(KELAS.upper())))
+                for key in content:
+                    course_name = key['course_name']
+                    session = key['session']
+                    course_code = key['course_code']
+                    course_room = key['course_room']
+                    lecturer_name = key['lecturer_name']
+                    week_day = key['week_day']
+                    line_bot_api.push_message(
+                        allowed_groupid, TextMessage(text="SESI {}\n{} - {}\n{}\nROOM: {}".format(session, course_code, course_name, lecturer_name, course_room)))
         if '/get' in text:
             if isinstance(event.source, SourceUser):
                 profile = line_bot_api.get_profile(event.source.user_id)
