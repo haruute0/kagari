@@ -87,8 +87,7 @@ def handle_text_message(event):
         if '/today' in text:
                 KELAS = text.split(' ')[1]
                 content = database.today_schedule(KELAS)
-                line_bot_api.push_message(
-                    allowed_groupid, TextMessage(text="Teknik Informatika Kelas {}".format(KELAS.upper())))
+                schedule = ""
                 for key in content:
                     course_name = key['course_name']
                     session = key['session']
@@ -96,22 +95,24 @@ def handle_text_message(event):
                     course_room = key['course_room']
                     lecturer_name = key['lecturer_name']
                     week_day = key['week_day']
-                    line_bot_api.push_message(
-                        allowed_groupid, TextMessage(text="SESI {}\n{} - {}\n{}\nROOM: {}".format(session, course_code, course_name, lecturer_name, course_room)))
+                    item = "\nSession {}\n{} - {}\n{}\n{}\n---".format(session, course_code, course_name, lecturer_name, course_room)
+                    schedule += item
+                line_bot_api.reply_message(
+                    event.reply_token, TextMessage(text="[TODAY {}]\n---{}".format(KELAS.upper(), schedule)))
         if '/tomorrow' in text:
                 KELAS = text.split(' ')[1]
                 content = database.tomorrow_schedule(KELAS)
-                line_bot_api.push_message(
-                    allowed_groupid, TextMessage(text="Teknik Informatika Kelas {}".format(KELAS.upper())))
+                schedule = ""
                 for key in content:
                     course_name = key['course_name']
                     session = key['session']
                     course_code = key['course_code']
                     course_room = key['course_room']
                     lecturer_name = key['lecturer_name']
-                    week_day = key['week_day']
-                    line_bot_api.push_message(
-                        allowed_groupid, TextMessage(text="SESI {}\n{} - {}\n{}\nROOM: {}".format(session, course_code, course_name, lecturer_name, course_room)))
+                    item = "\nSession {}\n{} - {}\n{}\n{}\n---".format(session, course_code, course_name, lecturer_name, course_room)
+                    schedule += item
+                line_bot_api.reply_message(
+                    event.reply_token, TextMessage(text="[TOMORROW {}]\n---{}".format(KELAS.upper(), schedule)))
         if '/get' in text:
             if isinstance(event.source, SourceUser):
                 profile = line_bot_api.get_profile(event.source.user_id)
