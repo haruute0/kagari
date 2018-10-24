@@ -94,7 +94,6 @@ def handle_text_message(event):
                     course_code = key['course_code']
                     course_room = key['course_room']
                     lecturer_name = key['lecturer_name']
-                    week_day = key['week_day']
                     item = "\nSession {}\n{} - {}\n{}\n{}\n---".format(session, course_code, course_name, lecturer_name, course_room)
                     schedule += item
                 line_bot_api.reply_message(
