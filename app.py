@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import errno, os
-from flask import Flask, request, abort
+from flask import Flask, request, abort, render_template
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -46,6 +46,17 @@ def make_static_tmp_dir():
             pass
         else:
             raise
+
+@app.route('/')
+def my_form():
+    return render_template('form.html')
+
+@app.route('/', methods=['POST'])
+def my_form_post():
+    text = request.form['text']
+    processed_text = text.upper()
+    line_bot_api.push_message(allowed_groupid, TextSendMessage(text=processed_text))
+    return None
 
 @app.route("/callback", methods=['POST'])
 def callback():
