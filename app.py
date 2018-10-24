@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import errno, os
-from flask import Flask, request, abort, #render_template
+from flask import Flask, request, abort#, render_template
 
 from linebot import (
     LineBotApi, WebhookHandler
