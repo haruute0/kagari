@@ -47,6 +47,21 @@ def make_static_tmp_dir():
         else:
             raise
 
+def parse_schedule(content):
+    schedule = ""
+    try:
+        for key in content:
+            course_name = key['course_name']
+            session = key['session']
+            course_code = key['course_code']
+            course_room = key['course_room']
+            lecturer_name = key['lecturer_name']
+            item = "\nSession {}\n{} - {}\n{}\n{}\n---".format(session, course_code, course_name, lecturer_name, course_room)
+            schedule += item
+    except:
+        schedule = "\n{}\n---".format(content)
+    return schedule    
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -87,29 +102,13 @@ def handle_text_message(event):
         if '/today' in text:
                 KELAS = text.split(' ')[1]
                 content = database.today_schedule(KELAS)
-                schedule = ""
-                for key in content:
-                    course_name = key['course_name']
-                    session = key['session']
-                    course_code = key['course_code']
-                    course_room = key['course_room']
-                    lecturer_name = key['lecturer_name']
-                    item = "\nSession {}\n{} - {}\n{}\n{}\n---".format(session, course_code, course_name, lecturer_name, course_room)
-                    schedule += item
+                schedule = parse_schedule(content)
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text="[TODAY {}]\n---{}".format(KELAS.upper(), schedule)))
         if '/tomorrow' in text:
                 KELAS = text.split(' ')[1]
-                content = database.tomorrow_schedule(KELAS)
-                schedule = ""
-                for key in content:
-                    course_name = key['course_name']
-                    session = key['session']
-                    course_code = key['course_code']
-                    course_room = key['course_room']
-                    lecturer_name = key['lecturer_name']
-                    item = "\nSession {}\n{} - {}\n{}\n{}\n---".format(session, course_code, course_name, lecturer_name, course_room)
-                    schedule += item
+                content = database.today_schedule(KELAS)
+                schedule = parse_schedule(content)
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text="[TOMORROW {}]\n---{}".format(KELAS.upper(), schedule)))
         if '/get' in text:

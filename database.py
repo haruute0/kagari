@@ -17,27 +17,19 @@ def init():
     db=os.environ.get('DATABASE_DB', None),
     cursorclass=pymysql.cursors.DictCursor)
 
-def insert(sql):
-  try:
-    connection = init()
-    with connection.cursor() as cursor:
-      cursor.execute(sql)
-    connection.commit()
-    connection.close()
-    return True
-  except pymysql.Error as e:
-    print(e)
-    return False
-
 def get_schedule(KELAS, index):
   connection = init()
   cursor = connection.cursor()
   TABLE = 'schedule_tf' + KELAS.lower()
   WEEK_DAY = get_weekday(index)
-  print(WEEK_DAY)
-  sql = """SELECT * from {}.{} WHERE week_day = {};""".format(os.environ.get('DATABASE_DB', None), TABLE, WEEK_DAY)
-  cursor.execute(sql)
-  rows = cursor.fetchall()
+  if WEEK_DAY == 5:
+    rows = "Harusnya tidak ada kuliah, harap cermati sesi pengganti."
+  elif WEEK_DAY == 6:
+    rows = "Minggu, tidak ada kuliah."
+  else:
+    sql = """SELECT * from {}.{} WHERE week_day = {};""".format(os.environ.get('DATABASE_DB', None), TABLE, WEEK_DAY)
+    cursor.execute(sql)
+    rows = cursor.fetchall()
   return rows
 	
 def today_schedule(KELAS):
