@@ -55,8 +55,7 @@ def parse_schedule(content):
             session = key['session']
             course_code = key['course_code']
             course_room = key['course_room']
-            lecturer_name = key['lecturer_name']
-            item = "\nSession {}\n{} - {}\n{}\n{}\n---".format(session, course_code, course_name, lecturer_name, course_room)
+            item = "\nSession {}\n{} - {}\n{}\n---".format(session, course_code, course_name, course_room)
             schedule += item
     except:
         schedule = "\n{}\n---".format(content)
