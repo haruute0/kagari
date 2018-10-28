@@ -1,5 +1,13 @@
+from datetime import datetime, timedelta
+from pytz import timezone
 import pymysql, os
-import datetime
+
+# Set Jakarta as Default Timezone because Heroku detect US timezone.
+def get_weekday(index):
+  tz = timezone('Asia/Jakarta')
+  weekday = datetime.now(tz) + timedelta(days=index)
+  weekday = weekday.weekday()
+  return weekday
 
 def init():
   return pymysql.connect(
@@ -20,32 +28,22 @@ def insert(sql):
   except pymysql.Error as e:
     print(e)
     return False
+
+def get_schedule(KELAS, index):
+  connection = init()
+  cursor = connection.cursor()
+  TABLE = 'schedule_tf' + KELAS.lower()
+  WEEK_DAY = get_weekday(index)
+  print(WEEK_DAY)
+  sql = """SELECT * from {}.{} WHERE week_day = {};""".format(os.environ.get('DATABASE_DB', None), TABLE, WEEK_DAY)
+  cursor.execute(sql)
+  rows = cursor.fetchall()
+  return rows
 	
 def today_schedule(KELAS):
-  try:
-    connection = init()
-    cursor = connection.cursor()
-    TABLE = 'schedule_tf' + KELAS.lower()
-    WEEK_DAY = datetime.datetime.today().weekday()
-    sql = """SELECT * from {}.{} WHERE week_day = {};""".format(os.environ.get('DATABASE_DB', None), TABLE, WEEK_DAY)
-    cursor.execute(sql)
-    rows = cursor.fetchall()
-    return rows
-  except pymysql.Error as e:
-    rows = "Kelas {} tidak ada.\nInput kelas: A, B atau C.".format(KELAS.upper())
-    return rows
+  rows = get_schedule(KELAS, index=0)
+  return rows
 
 def tomorrow_schedule(KELAS):
-  try:
-    connection = init()
-    cursor = connection.cursor()
-    TABLE = 'schedule_tf' + KELAS.lower()
-    WEEK_DAY = datetime.datetime.today().weekday()
-    WEEK_DAY = WEEK_DAY + 1
-    sql = """SELECT * from {}.{} WHERE week_day = {};""".format(os.environ.get('DATABASE_DB', None), TABLE, WEEK_DAY)
-    cursor.execute(sql)
-    rows = cursor.fetchall()
-    return rows
-  except pymysql.Error as e:
-    rows = "Kelas {} tidak ada.\nInput kelas: A, B atau C.".format(KELAS.upper())
-    return rows
+  rows = get_schedule(KELAS, index=1)
+  return rows
