@@ -23,6 +23,7 @@ from linebot.models import (
 
 import database
 import datetime
+import re
 
 app = Flask(__name__)
 
@@ -98,24 +99,21 @@ def handle_text_message(event):
             else:
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text="Bot can't leave from 1:1 chat"))
-        if '/today' in text:
-                KELAS = text.split(' ')[1]
-                content = database.today_schedule(KELAS)
-                schedule = parse_schedule(content)
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text="[TODAY {}]\n---{}".format(KELAS.upper(), schedule)))
-        if '/tomorrow' in text:
-                KELAS = text.split(' ')[1]
-                content = database.today_schedule(KELAS)
-                schedule = parse_schedule(content)
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text="[TOMORROW {}]\n---{}".format(KELAS.upper(), schedule)))
-        if '/yesterday' in text:
-                KELAS = text.split(' ')[1]
-                content = database.yesterday_schedule(KELAS)
-                schedule = parse_schedule(content)
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text="[YESTERDAY {}]\n---{}".format(KELAS.upper(), schedule)))
+        if '/today' or '/tomorrow' or '/yesterday' in text:
+            searchText = re.search(r'\/([A-Za-z].*) ([A-Za-z]{0,1})', text,re.I)
+            command = searchText.group(1)
+            kelas = searchText.group(2)
+            if command == 'today':
+                content = database.today_schedule(kelas)
+            elif command == 'tomorrow':
+                content = database.tomorrow_schedule(kelas)
+            elif command == 'yesterday':
+                content = database.yesterday_schedule(kelas)
+            else:
+                content = "Erorr, no method."
+            schedule = parse_schedule(content)
+            line_bot_api.reply_message(
+                event.reply_token, TextMessage(text="[{} {}]\n---{}".format(command.upper(), kelas.upper(), schedule)))
         if '/get' in text:
             if isinstance(event.source, SourceUser):
                 profile = line_bot_api.get_profile(event.source.user_id)
