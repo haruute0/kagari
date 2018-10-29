@@ -114,18 +114,6 @@ def handle_text_message(event):
             schedule = parse_schedule(content)
             line_bot_api.reply_message(
                 event.reply_token, TextMessage(text="[{} {}]\n---{}".format(command.upper(), kelas.upper(), schedule)))
-        if command == 'get':
-            if isinstance(event.source, SourceUser):
-                profile = line_bot_api.get_profile(event.source.user_id)
-                line_bot_api.reply_message(
-                    event.reply_token, [
-                        TextSendMessage(text='Display name: ' + profile.display_name),
-                        TextSendMessage(text='UUID: ' + profile.user_id)]
-                        )
-            else:
-                line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text="Bot can't use profile API without user ID"))
 
 @handler.add(JoinEvent)
 def handle_join(event):
