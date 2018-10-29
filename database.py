@@ -39,3 +39,7 @@ def today_schedule(KELAS):
 def tomorrow_schedule(KELAS):
   rows = get_schedule(KELAS, index=1)
   return rows
+
+def yesterday_schedule(KELAS):
+  rows = get_schedule(KELAS, index=-1)
+  return rows

@@ -110,6 +110,12 @@ def handle_text_message(event):
                 schedule = parse_schedule(content)
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text="[TOMORROW {}]\n---{}".format(KELAS.upper(), schedule)))
+        if '/yesterday' in text:
+                KELAS = text.split(' ')[1]
+                content = database.yesterday_schedule(KELAS)
+                schedule = parse_schedule(content)
+                line_bot_api.reply_message(
+                    event.reply_token, TextMessage(text="[YESTERDAY {}]\n---{}".format(KELAS.upper(), schedule)))
         if '/get' in text:
             if isinstance(event.source, SourceUser):
                 profile = line_bot_api.get_profile(event.source.user_id)
