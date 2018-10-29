@@ -87,7 +87,9 @@ def handle_text_message(event):
                 event.reply_token,
                 TextSendMessage(text="Sorry, this is private bot."))
     else:
-        if text == '/bye':
+        searchText = re.search(r'\/([A-Za-z].*) ([A-Za-z0-9].*)', text, re.I)
+        command = str(searchText.group(1))
+        if command == 'bye':
             if isinstance(event.source, SourceGroup):
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text='Leaving group'))
@@ -99,10 +101,8 @@ def handle_text_message(event):
             else:
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text="Bot can't leave from 1:1 chat"))
-        if '/today' or '/tomorrow' or '/yesterday' in text:
-            searchText = re.search(r'\/([A-Za-z].*) ([A-Za-z]{0,1})', text,re.I)
-            command = searchText.group(1)
-            kelas = searchText.group(2)
+        if command == 'today' or 'tomorrow' or 'yesterday':
+            kelas = str(searchText.group(2)[0])
             if command == 'today':
                 content = database.today_schedule(kelas)
             elif command == 'tomorrow':
@@ -114,7 +114,7 @@ def handle_text_message(event):
             schedule = parse_schedule(content)
             line_bot_api.reply_message(
                 event.reply_token, TextMessage(text="[{} {}]\n---{}".format(command.upper(), kelas.upper(), schedule)))
-        if '/get' in text:
+        if command == 'get':
             if isinstance(event.source, SourceUser):
                 profile = line_bot_api.get_profile(event.source.user_id)
                 line_bot_api.reply_message(
