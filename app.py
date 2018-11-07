@@ -22,15 +22,17 @@ from linebot.models import (
 )
 
 import database
+import json 
 import datetime
 import re
+import firebase_admin
+from firebase_admin import credentials, db
 
 app = Flask(__name__)
 
 # get variables from your environment variable
 channel_secret = os.environ.get('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN', None)
-allowed_groupid = os.environ.get('ALLOWED_GROUPID', None)
 admin_id = os.environ.get('ADMIN_ID', None)
 
 line_bot_api = LineBotApi(channel_access_token)
@@ -60,7 +62,35 @@ def parse_schedule(content):
             schedule += item
     except:
         schedule = "\n{}\n---".format(content)
-    return schedule    
+    return schedule
+
+firebase_key = os.environ.get('FIREBASE_KEY', None)
+database_url = os.environ.get('FIREBASE_DB_URL', None)
+
+cred = credentials.Certificate(json.loads(firebase_key))
+dbfb = firebase_admin.initialize_app(cred, {
+    'databaseURL': database_url
+})
+
+def add_groupwhitelist(groupId):
+    global dbfb
+    ref = db.reference('/whitelist_groups', dbfb)
+    group = ref.get()
+    if group == None:
+        group = []
+    ref.child(str(len(group))).set(str(groupId))
+    message = "Group {} has been whitelisted.".format(str(groupId))
+    return message
+
+def check_permission(groupId):
+    global dbfb
+    ref = db.reference('/whitelist_groups', dbfb)
+    group = ref.get()
+    if groupId in group:
+        access = True
+    else:
+        access = False
+    return access
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -83,9 +113,18 @@ def callback():
 def handle_text_message(event):
     text = event.message.text
     if event.source.type == 'user':
-        line_bot_api.reply_message(
+        if event.source.user_id != admin_id:
+            line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text="Sorry, this is private bot."))
+        else:
+            searchText = re.search(r'\/([A-Za-z].*) ([A-Za-z0-9].*)', text, re.I)
+            command = str(searchText.group(1))
+            if command == 'add':
+                groupId = str(searchText.group(2))
+                content = add_groupwhitelist(groupId)
+                line_bot_api.reply_message(
+                    event.reply_token, TextMessage(text=content))
     else:
         searchText = re.search(r'\/([A-Za-z].*) ([A-Za-z0-9].*)', text, re.I)
         command = str(searchText.group(1))
@@ -105,12 +144,10 @@ def handle_text_message(event):
             kelas = str(searchText.group(2)[0])
             if command == 'today':
                 content = database.today_schedule(kelas)
-            elif command == 'tomorrow':
+            if command == 'tomorrow':
                 content = database.tomorrow_schedule(kelas)
-            elif command == 'yesterday':
+            if command == 'yesterday':
                 content = database.yesterday_schedule(kelas)
-            else:
-                content = "Erorr, no method."
             schedule = parse_schedule(content)
             line_bot_api.reply_message(
                 event.reply_token, TextMessage(text="[{} {}]\n---{}".format(command.upper(), kelas.upper(), schedule)))
@@ -118,7 +155,7 @@ def handle_text_message(event):
 @handler.add(JoinEvent)
 def handle_join(event):
     if event.source.type is 'group':
-        if event.source.group_id == allowed_groupid:
+        if check_permission(event.source.group_id):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='Thank you for inviting me to this ' + event.source.type))
