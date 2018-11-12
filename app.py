@@ -146,6 +146,10 @@ def handle_text_message(event):
             else:
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text="Bot can't leave from 1:1 chat"))
+        if command == 'get':
+            profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
+            line_bot_api.reply_message(
+                event.reply_token, TextMessage(text="Hello {}".format(profile.display_name)))
         if command == 'today' or 'tomorrow' or 'yesterday':
             kelas = str(searchText.group(2)[0])
             if command == 'today':
