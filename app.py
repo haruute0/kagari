@@ -134,6 +134,7 @@ def handle_text_message(event):
     else:
         searchText = re.search(r'\/([A-Za-z].*) ([A-Za-z0-9].*)', text, re.I)
         command = str(searchText.group(1))
+
         if command == 'bye':
             if isinstance(event.source, SourceGroup):
                 line_bot_api.reply_message(
@@ -146,10 +147,12 @@ def handle_text_message(event):
             else:
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text="Bot can't leave from 1:1 chat"))
+
         if command == 'get':
             profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
             line_bot_api.reply_message(
                 event.reply_token, TextMessage(text="Hello {}".format(profile.display_name)))
+
         if command == 'today' or 'tomorrow' or 'yesterday':
             kelas = str(searchText.group(2)[0])
             if command == 'today':
@@ -161,6 +164,9 @@ def handle_text_message(event):
             schedule = parse_schedule(content)
             line_bot_api.reply_message(
                 event.reply_token, TextMessage(text="[{} {}]\n---{}".format(command.upper(), kelas.upper(), schedule)))
+
+        else:
+            None
 
 @handler.add(JoinEvent)
 def handle_join(event):
