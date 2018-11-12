@@ -3,3 +3,4 @@ flask
 pymysql
 pytz
 firebase-admin
+python-dotenv

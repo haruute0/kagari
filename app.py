@@ -30,6 +30,12 @@ from firebase_admin import credentials, db
 
 app = Flask(__name__)
 
+from os.path import join, dirname
+from dotenv import load_dotenv
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
 # get variables from your environment variable
 channel_secret = os.environ.get('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN', None)
