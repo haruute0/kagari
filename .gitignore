@@ -1,3 +1,9 @@
+# VSCode
 .vscode
+
+# PyCache
 __pycache__/
+
+# Environment
 .env
+env
