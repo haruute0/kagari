@@ -132,9 +132,9 @@ def handle_text_message(event):
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=content))
     else:
-        searchText = re.search(r'\/([A-Za-z].*) ([A-Za-z0-9].*)', text, re.I)
-        command = str(searchText.group(1))
-
+        command = re.search(r'\/([\w]+)', text, re.I).group(1).lower()
+        argument = re.search(r'\/(?:[\w]+)\s([\w\d]+)', text, re.I)
+    
         if command == 'bye':
             if isinstance(event.source, SourceGroup):
                 line_bot_api.reply_message(
@@ -154,16 +154,23 @@ def handle_text_message(event):
                 event.reply_token, TextMessage(text="Hello {}".format(profile.display_name)))
 
         if command == 'today' or 'tomorrow' or 'yesterday':
-            kelas = str(searchText.group(2)[0])
-            if command == 'today':
-                content = database.today_schedule(kelas)
-            if command == 'tomorrow':
-                content = database.tomorrow_schedule(kelas)
-            if command == 'yesterday':
-                content = database.yesterday_schedule(kelas)
-            schedule = parse_schedule(content)
-            line_bot_api.reply_message(
-                event.reply_token, TextMessage(text="[{} {}]\n---{}".format(command.upper(), kelas.upper(), schedule)))
+            kelas = str(argument.group(1).lower())
+            qa = len(kelas)
+            if qa != 1:
+                message = "Maaf, input kelas tidak valid."
+                line_bot_api.reply_message(
+                    event.reply_token, TextMessage(text=message)
+                )
+            else:
+                query = "database.{}_schedule(kelas)".format(command)
+                print(query)
+                content = exec(query)
+                print(content)
+                schedule = parse_schedule(content)
+                line_bot_api.reply_message(
+                    event.reply_token, TextMessage(
+                        text="[{} {}]\n---{}".format(command.upper(), kelas.upper(), schedule)
+                        ))
 
         else:
             None
