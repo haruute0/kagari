@@ -162,7 +162,7 @@ def handle_text_message(event):
                     event.reply_token, TextMessage(text=message)
                 )
             else:
-                query = "database.{}_schedule(kelas)".format(command)
+                query = "database.{}_schedule('{}')".format(command, kelas)
                 print(query)
                 content = exec(query)
                 print(content)
