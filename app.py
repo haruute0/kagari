@@ -166,10 +166,10 @@ def handle_text_message(event):
                 print(query)
                 content = exec(query)
                 print(content)
-                schedule = parse_schedule(content)
+                data = parse_schedule(content)
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(
-                        text="[{} {}]\n---{}".format(command.upper(), kelas.upper(), schedule)
+                        text="[{} {}]\n---{}".format(command.upper(), kelas.upper(), data)
                         ))
 
         else:
