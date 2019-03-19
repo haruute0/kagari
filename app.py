@@ -152,7 +152,13 @@ def handle_text_message(event):
             profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
             line_bot_api.reply_message(
                 event.reply_token, TextMessage(text="Hello {}".format(profile.display_name)))
-
+        if command == 'malamute':
+            url = "https://dog.ceo/api/breed/Malamute/images/random"
+            resp = requests.get(url=url)
+            line_bot_api.reply_message(
+                event.reply_token, TextMessage(text="{}".format(resp)))
+            
+            
         if command == 'today' or 'tomorrow' or 'yesterday':
             kelas = str(argument.group(1).lower())
             qa = len(kelas)
